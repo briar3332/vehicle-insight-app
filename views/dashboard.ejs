@@ -295,7 +295,7 @@
         <!-- Header with Last Check and Actions -->
         <div class="header">
             <div class="last-check">
-                <h3>Last Check: <%= lastCheck %></h3>
+                <h3>Last Check: <%= typeof lastCheck !== 'undefined' ? lastCheck : 'Unavailable' %></h3>
                 <p>Automatically checking every 5 minutes</p>
             </div>
             <div class="header-actions">
