@@ -5,7 +5,6 @@ app.get('/dashboard', requireAuth, (req, res) => {
     totalEmails: 2,
     todayEmails: 1,
   };
-
   const emailHistory = [
     {
       status: 'NEW',
@@ -29,9 +28,10 @@ app.get('/dashboard', requireAuth, (req, res) => {
     },
   ];
 
-  // Temporary fallback
+  // fallback
   const gmailConnected = false;
   const emails = [];
 
+  // Render the EJS dashboard page
   res.render('dashboard', { lastCheck, stats, emailHistory, gmailConnected, emails });
 });
