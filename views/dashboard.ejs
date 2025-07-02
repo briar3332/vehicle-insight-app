@@ -1,10 +1,520 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Dashboard - Vehicle Insight</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vehicle Insight - DRN Email Monitor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px 30px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .last-check {
+            color: #666;
+        }
+        
+        .last-check h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+            color: #333;
+        }
+        
+        .last-check p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #7c3aed;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #6d28d9;
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-1px);
+        }
+        
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .stat-number {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 16px;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .email-history {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .section-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .email-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .email-table th {
+            background: #f8fafc;
+            padding: 16px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 14px;
+        }
+        
+        .email-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+            font-size: 14px;
+        }
+        
+        .email-table tr:hover {
+            background: #f8fafc;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-new {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-processed {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .vin-cell {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #4b5563;
+        }
+        
+        .vehicle-cell {
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .date-cell {
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .plate-icon {
+            background: #fbbf24;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            background: #7c3aed;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        
+        .action-btn:hover {
+            background: #6d28d9;
+        }
+        
+        .action-btn.processed {
+            background: #6b7280;
+            cursor: default;
+        }
+        
+        .no-emails {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+        
+        .no-emails h3 {
+            margin-bottom: 16px;
+            color: #374151;
+        }
+        
+        .connect-gmail {
+            background: #4285f4;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 16px;
+        }
+        
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+    </style>
 </head>
 <body>
-  <h1>Welcome, <%= username %>!</h1>
-  <p>This is your dashboard.</p>
+    <a href="/logout" class="logout-btn">Logout</a>
+    
+    <div class="container">
+        <!-- Header with Last Check and Actions -->
+        <div class="header">
+            <div class="last-check">
+                <h3>Last Check: <%= lastCheck %></h3>
+                <p>Automatically checking every 5 minutes</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="forceCheck()">Force Check Now</button>
+                <button class="btn btn-success" onclick="markAllProcessed()">Mark All Processed</button>
+                <button class="btn btn-danger" onclick="clearAllData()">Clear All Data</button>
+            </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number"><%= stats.newEmails %></div>
+                <div class="stat-label">New Emails</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><%= stats.totalEmails %></div>
+                <div class="stat-label">Total Emails</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number"><%= stats.todaysEmails %></div>
+                <div class="stat-label">Today's Emails</div>
+            </div>
+        </div>
+        
+        <!-- Email History Table -->
+        <div class="email-history">
+            <div class="section-header">
+                📧 DRN Email History
+            </div>
+            
+            <% if (gmailConnected && emails && emails.length > 0) { %>
+                <div class="table-container">
+                    <table class="email-table">
+                        <thead>
+                            <tr>
+                                <th>Status</th>
+                                <th>Date/Time</th>
+                                <th>Vehicle</th>
+                                <th>VIN</th>
+                                <th>Plate</th>
+                                <th>State</th>
+                                <th>Spotted</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% emails.forEach(email => { %>
+                                <tr data-email-id="<%= email.id %>">
+                                    <td>
+                                        <span class="status-badge <%= email.status === 'NEW' ? 'status-new' : 'status-processed' %>">
+                                            <%= email.status %>
+                                        </span>
+                                    </td>
+                                    <td class="date-cell">
+                                        <%= email.dateFormatted %>, <%= email.timeFormatted %>
+                                    </td>
+                                    <td class="vehicle-cell">
+                                        <%= email.vehicle || '• Unknown' %>
+                                    </td>
+                                    <td class="vin-cell">
+                                        <%= email.vin %>
+                                    </td>
+                                    <td>
+                                        <% if (email.plate) { %>
+                                            <span class="plate-icon"><%= email.plate %></span>
+                                        <% } else { %>
+                                            🟡
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <%= email.state || '' %>
+                                    </td>
+                                    <td class="date-cell">
+                                        <%= email.dateFormatted %>, <%= email.timeFormatted %>
+                                    </td>
+                                    <td>
+                                        <% if (email.status === 'NEW') { %>
+                                            <button class="action-btn" onclick="markProcessed('<%= email.id %>')">
+                                                Mark Processed
+                                            </button>
+                                        <% } else { %>
+                                            <button class="action-btn processed">
+                                                Processed
+                                            </button>
+                                        <% } %>
+                                    </td>
+                                </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="no-emails">
+                    <% if (!gmailConnected) { %>
+                        <h3>Gmail Not Connected</h3>
+                        <p>Connect your Gmail account to start monitoring DRN emails for vehicle notifications.</p>
+                        <a href="/auth/gmail" class="connect-gmail">🔗 Connect Gmail Account</a>
+                    <% } else { %>
+                        <h3>No DRN Emails Found</h3>
+                        <p>No emails from BuyItNow@digitalrecognition.net with "DRN -- Buy It Now Hit -- VIN:" found.</p>
+                        <button class="btn btn-primary" onclick="forceCheck()" style="margin-top: 16px;">
+                            Check for New Emails
+                        </button>
+                    <% } %>
+                </div>
+            <% } %>
+        </div>
+    </div>
+    
+    <script>
+        async function forceCheck() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Checking...';
+            btn.disabled = true;
+            
+            try {
+                const response = await fetch('/api/force-check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert(`Found ${result.emailCount} DRN emails. Page will refresh.`);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error checking emails: ' + error.message);
+            } finally {
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        async function markProcessed(emailId) {
+            try {
+                const response = await fetch('/api/mark-processed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ emailId })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Update UI without full page reload
+                    const row = document.querySelector(`tr[data-email-id="${emailId}"]`);
+                    const statusBadge = row.querySelector('.status-badge');
+                    const actionBtn = row.querySelector('.action-btn');
+                    
+                    statusBadge.textContent = 'PROCESSED';
+                    statusBadge.className = 'status-badge status-processed';
+                    
+                    actionBtn.textContent = 'Processed';
+                    actionBtn.className = 'action-btn processed';
+                    actionBtn.onclick = null;
+                    
+                    // Update stats
+                    const newEmailsCount = document.querySelector('.stat-card .stat-number');
+                    const currentCount = parseInt(newEmailsCount.textContent);
+                    if (currentCount > 0) {
+                        newEmailsCount.textContent = currentCount - 1;
+                    }
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error marking as processed: ' + error.message);
+            }
+        }
+        
+        async function markAllProcessed() {
+            if (!confirm('Mark all emails as processed?')) return;
+            
+            try {
+                const response = await fetch('/api/mark-all-processed', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('All emails marked as processed');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+        
+        async function clearAllData() {
+            if (!confirm('This will clear all email data. Are you sure?')) return;
+            
+            try {
+                const response = await fetch('/api/clear-all-data', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    alert('All data cleared');
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+    </script>
 </body>
 </html>
