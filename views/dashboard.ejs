@@ -3,7 +3,7 @@ app.get('/dashboard', requireAuth, (req, res) => {
   const stats = {
     newEmails: 1,
     totalEmails: 2,
-    todayEmails: 1
+    todayEmails: 1,
   };
 
   const emailHistory = [
@@ -15,7 +15,7 @@ app.get('/dashboard', requireAuth, (req, res) => {
       plate: 'ABC123',
       state: 'TX',
       spotted: '2025-07-02, 08:30 AM',
-      processed: false
+      processed: false,
     },
     {
       status: 'PROCESSED',
@@ -25,19 +25,13 @@ app.get('/dashboard', requireAuth, (req, res) => {
       plate: 'XYZ789',
       state: 'CA',
       spotted: '2025-07-01, 11:00 AM',
-      processed: true
-    }
+      processed: true,
+    },
   ];
 
-  // ✅ Add these two temporary values to avoid crash
+  // Temporary fallback
   const gmailConnected = false;
   const emails = [];
 
-  res.render('dashboard', {
-    lastCheck,
-    stats,
-    emailHistory,
-    gmailConnected,
-    emails
-  });
+  res.render('dashboard', { lastCheck, stats, emailHistory, gmailConnected, emails });
 });
